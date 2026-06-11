@@ -487,3 +487,44 @@ cursor: default;
         grid-template-columns: 1fr 1fr;
     }
 }
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+  }
+
+  .main-content,
+  .content,
+  .dashboard,
+  .container {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 15px !important;
+  }
+
+  .cards,
+  .stats,
+  .dashboard-grid,
+  .charts,
+  .products,
+  .table-wrapper {
+    display: grid;
+    grid-template-columns: 1fr !important;
+    gap: 15px;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  canvas {
+    max-width: 100% !important;
+  }
+}
