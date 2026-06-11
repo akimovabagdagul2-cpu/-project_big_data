@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfume Store | Покупатель</title>
+
+  <link rel="stylesheet" href="shop.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NDEYZMGZS7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-NDEYZMGZS7');
+</script>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCFj2OJA8yFoxOoYOhFPYza4eA-3tXVc8g",
+      authDomain: "dashboard-system-da517.firebaseapp.com",
+      databaseURL: "https://dashboard-system-da517-default-rtdb.firebaseio.com",
+      projectId: "dashboard-system-da517",
+      storageBucket: "dashboard-system-da517.firebasestorage.app",
+      messagingSenderId: "679699926829",
+      appId: "1:679699926829:web:edae7be3d8c147c0528da4",
+      measurementId: "G-NDEYZMGZS7"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const auth = firebase.auth();
+  </script>
+</head>
+
+<body>
+
+<!-- AUTH -->
+<div id="authPage" class="auth-page">
+  <div class="auth-card">
+    <h1>PARFUM STORE</h1>
+    <p>Вход для покупателей</p>
+
+    <div class="auth-tabs">
+      <button id="loginTab" class="active-tab" onclick="showLogin()">Вход</button>
+      <button id="registerTab" onclick="showRegister()">Регистрация</button>
+    </div>
+
+    <div id="loginForm" class="auth-form">
+      <input id="loginEmail" type="email" placeholder="Email">
+      <input id="loginPassword" type="password" placeholder="Пароль">
+      <button onclick="loginCustomer()">Войти</button>
+    </div>
+
+    <div id="registerForm" class="auth-form hidden">
+      <input id="registerName" type="text" placeholder="Имя">
+      <input id="registerEmail" type="email" placeholder="Email">
+      <input id="registerPassword" type="password" placeholder="Пароль минимум 6 символов">
+      <button onclick="registerCustomer()">Зарегистрироваться</button>
+    </div>
+  </div>
+</div>
+
+<!-- SHOP -->
+<div id="shopPage" class="shop-page hidden">
+
+  <header class="shop-header">
+    <div class="logo">
+      <i class="fa-solid fa-spray-can-sparkles"></i>
+      <span>PARFUM STORE</span>
+    </div>
+
+    <nav>
+      <button onclick="showSection('catalog')">Каталог</button>
+      <button onclick="showSection('cart')">Корзина <span id="cartCount">0</span></button>
+      <button onclick="showSection('orders')">Мои заказы</button>
+    </nav>
+
+    <div class="user-box">
+      <span id="customerEmail">user@gmail.com</span>
+      <button onclick="logoutCustomer()">Выйти</button>
+    </div>
+  </header>
+
+  <main class="shop-content">
+
+    <!-- CATALOG -->
+   <!-- CATALOG -->
+<section id="catalog" class="shop-section active-section">
+
+  <div class="hero hero-shop">
+    <div class="hero-text">
+      <h1>Парфюмерия онлайн</h1>
+      <p>Выберите любимый аромат и оформите заказ онлайн</p>
+
+      <button onclick="document.getElementById('productsGrid').scrollIntoView({behavior:'smooth'})">
+        Перейти в каталог
+      </button>
+    </div>
+
+    <div class="hero-image">
+      <img src="https://static.beautyinsider.ru/2017/01/parf-best-900x600.jpg" alt="perfume">
+    </div>
+  </div>
+
+  <div class="benefits-main">
+    <div>🌸 100% оригинальная продукция</div>
+    <div>🚚 Быстрая доставка по Казахстану</div>
+    <div>🔒 Безопасная демо-оплата</div>
+    <div>🎁 Подарок к каждому заказу</div>
+  </div>
+
+  <h2>Каталог товаров</h2>
+
+  <div id="productsGrid" class="products-grid"></div>
+
+</section>
+
+    <!-- CART -->
+    <section id="cart" class="shop-section">
+      <h2>Корзина</h2>
+
+      <div class="cart-panel">
+        <table>
+          <thead>
+            <tr>
+              <th>Товар</th>
+              <th>Цена</th>
+              <th>Кол-во</th>
+              <th>Сумма</th>
+              <th>Действие</th>
+            </tr>
+          </thead>
+          <tbody id="cartTable"></tbody>
+        </table>
+
+        <h3>Итого: <span id="cartTotal">0 ₸</span></h3>
+      </div>
+
+      <div class="checkout-panel">
+  <h3>Оформление заказа</h3>
+
+  <select id="orderCity">
+    <option value="">Выберите город</option>
+    <option value="Астана">Астана</option>
+    <option value="Алматы">Алматы</option>
+    <option value="Шымкент">Шымкент</option>
+    <option value="Орал">Орал</option>
+    <option value="Ақтөбе">Ақтөбе</option>
+    <option value="Атырау">Атырау</option>
+    <option value="Ақтау">Ақтау</option>
+    <option value="Қарағанды">Қарағанды</option>
+    <option value="Қостанай">Қостанай</option>
+    <option value="Павлодар">Павлодар</option>
+    <option value="Өскемен">Өскемен</option>
+    <option value="Қызылорда">Қызылорда</option>
+    <option value="Тараз">Тараз</option>
+    <option value="Көкшетау">Көкшетау</option>
+    <option value="Петропавл">Петропавл</option>
+    <option value="Түркістан">Түркістан</option>
+  </select>
+
+  <input id="orderAddress" type="text" placeholder="Адрес доставки">
+
+  <input
+    id="orderPhone"
+    type="tel"
+    placeholder="+7 777 123 45 67"
+    maxlength="16"
+    oninput="formatPhoneInput(this)"
+  >
+
+  <div class="payment-demo">
+    <h4>Демо-оплата картой</h4>
+    <p>Бұл дипломдық жоба үшін жасалған төлем имитациясы. Ақша картадан шешілмейді.</p>
+
+    <input
+      id="cardNumber"
+      type="text"
+      placeholder="Номер карты: 4400 0000 0000 0000"
+      maxlength="19"
+      oninput="formatCardNumber(this)"
+    >
+
+    <div class="payment-row">
+      <input
+        id="cardDate"
+        type="text"
+        placeholder="MM/YY"
+        maxlength="5"
+        oninput="formatCardDate(this)"
+      >
+
+      <input
+        id="cardCvv"
+        type="password"
+        placeholder="CVV"
+        maxlength="3"
+        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+      >
+    </div>
+  </div>
+
+
+  <button onclick="checkoutOrder()">Подтвердить заказ</button>
+</div>
+    </section>
+
+    <!-- ORDERS -->
+    <section id="orders" class="shop-section">
+      <h2>Мои заказы</h2>
+
+      <div class="orders-panel">
+        <table>
+          <thead>
+            <tr>
+              <th>Товары</th>
+              <th>Сумма</th>
+              <th>Город</th>
+              <th>Адрес</th>
+              <th>Статус</th>
+              <th>Дата</th>
+              <th>Действие</th>
+            </tr>
+          </thead>
+          <tbody id="myOrdersTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+
+<script src="shop.js"></script>
+</body>
+</html>

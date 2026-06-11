@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfume Store Dashboard</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCFj2OJA8yFoxOoYOhFPYza4eA-3tXVc8g",
+      authDomain: "dashboard-system-da517.firebaseapp.com",
+      databaseURL: "https://dashboard-system-da517-default-rtdb.firebaseio.com",
+      projectId: "dashboard-system-da517",
+      storageBucket: "dashboard-system-da517.firebasestorage.app",
+      messagingSenderId: "679699926829",
+      appId: "1:679699926829:web:edae7be3d8c147c0528da4",
+      measurementId: "G-NDEYZMGZS7"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const auth = firebase.auth();
+  </script>
+</head>
+
+<body>
+
+<div id="authPage" class="auth-page">
+  <div class="auth-card">
+    <h1>PARFUM STORE</h1>
+    <p>Big Data Analytics Dashboard</p>
+
+    <div class="auth-tabs">
+      <button class="active-tab" style="width:100%; cursor:default;">
+        Вход для сотрудника
+      </button>
+    </div>
+
+    <div id="loginForm" class="auth-form">
+      <input id="loginEmail" type="email" placeholder="Email">
+      <input id="loginPassword" type="password" placeholder="Пароль">
+      <button onclick="loginUser()">Войти</button>
+    </div>
+  </div>
+</div>
+
+<div id="dashboard" class="dashboard hidden">
+
+  <aside class="sidebar">
+
+    <div>
+      <div class="logo">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span>PARFUM STORE</span>
+      </div>
+
+      <nav class="menu">
+        <button class="menu-btn active" onclick="showPage('analytics', this)">
+          <i class="fa-solid fa-chart-line"></i> Аналитика
+        </button>
+
+        <button class="menu-btn" onclick="showPage('users', this)">
+          <i class="fa-solid fa-users"></i> Пользователи
+        </button>
+
+        <button class="menu-btn" onclick="showPage('products', this)">
+          <i class="fa-solid fa-box"></i> Товары
+        </button>
+
+        <button class="menu-btn" onclick="showPage('sales', this)">
+          <i class="fa-solid fa-cart-shopping"></i> Продажи
+        </button>
+
+        <button class="menu-btn" onclick="showPage('onlineOrders', this)">
+          <i class="fa-solid fa-truck-fast"></i> Онлайн-заказы
+        </button>
+
+        <button class="menu-btn" onclick="showPage('reports', this)">
+          <i class="fa-solid fa-file-excel"></i> Отчёты
+        </button>
+
+        <button class="menu-btn" onclick="showPage('activity', this)">
+          <i class="fa-solid fa-bolt"></i> Активность
+        </button>
+
+        <button class="menu-btn" onclick="showPage('settings', this)">
+          <i class="fa-solid fa-gear"></i> Структура
+        </button>
+      </nav>
+    </div>
+
+    <div>
+      <div class="admin-box">
+        <div class="admin-avatar">AD</div>
+        <div>
+          <h4 id="currentUserName">Администратор</h4>
+          <p id="currentUserEmail">admin@gmail.com</p>
+        </div>
+      </div>
+
+      <button class="logout-btn" onclick="logoutUser()">Выйти</button>
+    </div>
+
+  </aside>
+
+  <main class="content">
+
+    <section id="analytics" class="page active-page">
+      <div class="top-row">
+        <div>
+          <h1>Аналитика</h1>
+          <p>Автоматическая статистика из Firebase</p>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="icon purple"><i class="fa-solid fa-users"></i></div>
+          <div>
+            <p>Пользователи</p>
+            <h2 id="statUsers">0</h2>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="icon green"><i class="fa-solid fa-box"></i></div>
+          <div>
+            <p>Товары</p>
+            <h2 id="statProducts">0</h2>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="icon blue"><i class="fa-solid fa-cart-shopping"></i></div>
+          <div>
+            <p>Продажи</p>
+            <h2 id="statSales">0</h2>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="icon yellow"><i class="fa-solid fa-coins"></i></div>
+          <div>
+            <p>Доход</p>
+            <h2 id="statIncome">0 ₸</h2>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="panel">
+          <h3>Рост пользователей</h3>
+          <canvas id="usersChart"></canvas>
+        </div>
+
+        <div class="panel">
+          <h3>Доход по месяцам</h3>
+          <canvas id="incomeChart"></canvas>
+        </div>
+
+        <div class="panel">
+          <h3>Продажи</h3>
+          <canvas id="salesChart"></canvas>
+        </div>
+      </div>
+<!-- AI ANALYSIS -->
+<div class="panel ai-panel">
+
+  <div class="section-header">
+    <div>
+      <h3>🤖 AI Анализ</h3>
+      <p>Автоматический анализ продаж и товаров</p>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+
+    <div class="stat-card">
+      <div class="icon purple">
+        <i class="fa-solid fa-crown"></i>
+      </div>
+      <div>
+        <p>Хит продаж</p>
+        <h2 id="aiTopProduct">-</h2>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="icon yellow">
+        <i class="fa-solid fa-coins"></i>
+      </div>
+      <div>
+        <p>Общий доход</p>
+        <h2 id="aiTotalIncome">0 ₸</h2>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="icon red">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <div>
+        <p>Минимальный остаток</p>
+        <h2 id="aiLowStock">-</h2>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="panel" style="margin-top:20px;">
+    <h4>💡 Рекомендация системы</h4>
+    <p id="aiRecommendation">
+      Загрузка аналитики...
+    </p>
+  </div>
+
+</div>
+      <div class="panel recent-sales-panel">
+        <h3>Последние продажи</h3>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Товар</th>
+              <th>Количество</th>
+              <th>Сумма</th>
+              <th>Дата</th>
+            </tr>
+          </thead>
+
+          <tbody id="recentSalesTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="users" class="page">
+      <div class="section-header">
+        <div>
+          <h1>Пользователи</h1>
+          <p>Все зарегистрированные аккаунты</p>
+        </div>
+
+        <button class="primary-btn" onclick="addUserManually()">
+          + Добавить пользователя
+        </button>
+      </div>
+
+      <div class="panel">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Имя</th>
+              <th>Email</th>
+              <th>Роль</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+
+          <tbody id="usersTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="products" class="page">
+      <div class="section-header">
+        <div>
+          <h1>Товары</h1>
+          <p>Склад товаров магазина</p>
+        </div>
+      </div>
+
+      <div class="form-panel">
+        <h3>Добавить товар</h3>
+
+        <div class="form-grid">
+          <input id="productName" type="text" placeholder="Название товара">
+          <input id="productPrice" type="number" placeholder="Цена">
+          <input id="productStock" type="number" placeholder="Количество в наличии">
+          <input id="productImage" type="text" placeholder="Ссылка на фото">
+        </div>
+
+        <button class="primary-btn" onclick="addProductFromForm()">
+          Сохранить товар
+        </button>
+      </div>
+
+      <div class="panel">
+        <table>
+          <thead>
+            <tr>
+              <th>Фото</th>
+              <th>Название</th>
+              <th>Цена</th>
+              <th>В наличии</th>
+              <th>Продано</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+
+          <tbody id="productsTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="sales" class="page">
+      <div class="section-header">
+        <div>
+          <h1>Продажи</h1>
+          <p>Оформление продажи товара</p>
+        </div>
+      </div>
+
+      <div class="form-panel">
+        <h3>Оформить продажу</h3>
+
+        <div class="form-grid">
+          <select id="saleProductSelect">
+            <option value="">Выберите товар</option>
+          </select>
+
+          <input id="saleQuantity" type="number" placeholder="Количество продано">
+        </div>
+
+        <button class="primary-btn" onclick="addSaleFromForm()">
+          Оформить продажу
+        </button>
+      </div>
+
+      <div class="panel">
+        <table>
+          <thead>
+            <tr>
+              <th>Товар</th>
+              <th>Количество</th>
+              <th>Цена</th>
+              <th>Сумма</th>
+              <th>Дата</th>
+            </tr>
+          </thead>
+
+          <tbody id="salesTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="onlineOrders" class="page">
+      <div class="section-header">
+        <div>
+          <h1>Онлайн-заказы</h1>
+          <p>Покупатели сайт арқылы рәсімдеген тапсырыстар</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <table>
+          <thead>
+            <tr>
+              <th>Покупатель</th>
+              <th>Товар</th>
+              <th>Сумма</th>
+              <th>Город</th>
+              <th>Адрес</th>
+              <th>Статус</th>
+              <th>Дата</th>
+            </tr>
+          </thead>
+
+          <tbody id="onlineOrdersTable">
+            <tr>
+              <td colspan="7">Загрузка заказов...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="reports" class="page">
+      <div class="section-header">
+        <div>
+          <h1>Отчёты</h1>
+          <p>Сводная информация по пользователям, продажам и онлайн-заказам.</p>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>👥 Пользователи</h3>
+          <h2 id="reportUsers">0</h2>
+        </div>
+
+        <div class="stat-card">
+          <h3>🛒 Онлайн-заказы</h3>
+          <h2 id="reportOrders">0</h2>
+        </div>
+
+        <div class="stat-card">
+          <h3>💰 Продажи</h3>
+          <h2 id="reportSales">0 ₸</h2>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:20px; padding:20px; display:flex; gap:15px; flex-wrap:wrap;">
+        <button class="primary-btn" onclick="exportUsersExcel()">
+          👥 Отчёт по пользователям
+        </button>
+
+        <button class="primary-btn" onclick="exportSalesExcel()">
+          💰 Отчёт по продажам
+        </button>
+
+        <button class="primary-btn" onclick="exportOrdersExcel()">
+          🛒 Отчёт по онлайн-заказам
+        </button>
+      </div>
+    </section>
+
+    <section id="activity" class="page">
+      <div class="section-header">
+        <div>
+          <h1>Активность</h1>
+          <p>Последние действия в системе</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <ul class="activity-list" id="activityList"></ul>
+      </div>
+    </section>
+
+    <section id="settings" class="page">
+      <div class="section-header">
+        <div>
+          <h1>Структура</h1>
+          <p>Структура базы данных проекта</p>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <div class="panel">
+          <h3>Firebase Realtime Database</h3>
+
+          <div class="db-structure">
+            <div class="db-box purple-border">
+              <h4>users</h4>
+              <p>name</p>
+              <p>email</p>
+              <p>role</p>
+              <p>month</p>
+            </div>
+
+            <div class="db-box green-border">
+              <h4>products</h4>
+              <p>name</p>
+              <p>price</p>
+              <p>stock</p>
+              <p>sold</p>
+              <p>image</p>
+            </div>
+
+            <div class="db-box yellow-border">
+              <h4>sales</h4>
+              <p>productName</p>
+              <p>quantity</p>
+              <p>total</p>
+              <p>month</p>
+              <p>date</p>
+            </div>
+
+            <div class="db-box blue-border">
+              <h4>orders</h4>
+              <p>userEmail</p>
+              <p>items</p>
+              <p>total</p>
+              <p>status</p>
+              <p>date</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Логика проекта</h3>
+
+          <ol class="steps">
+            <li>Покупатель регистрируется на shop.html.</li>
+            <li>Администратор добавляет товар в базу.</li>
+            <li>Покупатель оформляет онлайн-заказ.</li>
+            <li>Администратор меняет статус заказа.</li>
+            <li>После статуса “Доставлен” заказ попадает в продажи.</li>
+            <li>Доход, графики и Excel-отчёты обновляются автоматически.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+</body>
+</html>
