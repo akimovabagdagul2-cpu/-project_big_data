@@ -68,15 +68,19 @@ function loginUser() {
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value.trim();
 
-  const adminEmail = "admin@gmail.com";
+  const allowedAdmins = [
+    "admin@gmail.com",
+    "employee1@gmail.com",
+    "employee2@gmail.com"
+  ];
 
   if (!email || !password) {
     alert("Введите email и пароль");
     return;
   }
 
-  if (email !== adminEmail) {
-    alert("Бұл бөлім тек администраторға арналған!");
+  if (!allowedAdmins.includes(email)) {
+    alert("Бұл бөлімге кіруге рұқсат жоқ!");
     return;
   }
 
@@ -85,10 +89,9 @@ function loginUser() {
       alert("Ошибка входа: " + error.message);
     });
 }
+
 function logoutUser() {
-
   auth.signOut();
-
 }
 
 /* PAGES */
